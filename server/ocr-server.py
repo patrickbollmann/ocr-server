@@ -48,8 +48,17 @@ def ocr():
         file.save(filename)
     else:
         return "filetyoe not supported. Supproted file extensions are: {'pdf', 'png', 'jpg', 'jpeg'}", 400
+    ocrString = doOCR(filename)
+    @after_this_request
+    def remove_file(response):
+        print("removing scanned file...")
+        try:
+            os.remove(filename)
+        except Exception as error:
+            app.logger.error("Error removing or closing downloaded file handle", error)
+        return response
 
-    return doOCR(filename)
+    return ocrString
 
 
 app.run(host='0.0.0.0')
